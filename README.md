@@ -1,165 +1,127 @@
 # Partage de frais
 
-> **Noter les dépenses d’un séjour entre amis et savoir à tout moment qui doit combien à qui.**
+Application du projet 1 de l'UMONS : noter les dépenses d'un séjour entre amis et connaître le solde de chaque membre.
 
-Séance 1 · En binôme · Comme vous le faites d’habitude, avec ou sans IA, ChatGPT compris.
+Le projet complète le squelette du professeur dans **`code-streamlit`**, avec les quatre tables SQLite et les exemples fournis. Le dossier `code-flask` est conservé comme référence ; la version développée et testée est celle de Streamlit.
 
-[Démarrer](#démarrer)
+Technologies : **Python 3.11 ou plus, SQLite, Streamlit, pytest et Git**. Aucun service externe n'est nécessaire pour utiliser l'application après installation.
 
-## Le contexte
+## Installer sur macOS
 
-Un groupe d’amis part une semaine en vacances. Chacun paie des choses pour les autres : les courses pour tout le monde, l’essence pour ceux qui sont dans la voiture, une activité pour une partie du groupe. Les tickets s’accumulent, et à la fin plus personne ne sait qui doit combien à qui.
-
-## Les données
-
-| Objet | Ce qu’on enregistre |
-|---|---|
-| **Groupe** | nom, dates du séjour, membres |
-| **Dépense** | libellé, montant, date, payeur, participants |
-
-## Ce que l’application doit faire
-
-- [ ] Créer un groupe et ses membres
-- [ ] Ajouter ou supprimer une dépense
-- [ ] Afficher le solde de chaque membre
-
-## Les règles
-
-- Une dépense a un montant positif et au moins un participant.
-- Le payeur et les participants appartiennent au groupe.
-- La date d’une dépense est comprise dans le séjour, dates de début et de fin incluses.
-- Une dépense est partagée à parts égales entre ses participants. Le centime restant va au premier participant ajouté.
-- Les soldes sont exacts au centime près et leur somme vaut toujours 0.
-
-## Pour vérifier
-
-Groupe : Alice, Bob et Chloé. Les lignes s’enchaînent.
-
-| Action | Résultat attendu |
-|---|---|
-| Alice paie 30 € pour Alice, Bob et Chloé | Alice +20,00 ; Bob −10,00 ; Chloé −10,00 |
-| Une dépense datée hors du séjour | Refusée, soldes inchangés |
-| Une dépense de 0 € | Refusée, soldes inchangés |
-| Sur un nouveau groupe, Alice paie 10 € pour les trois | Alice +6,66 ; Bob −3,33 ; Chloé −3,33 |
-
-## Si vous avez fini
-
-Modifier une dépense, filtrer les dépenses par membre ou par période, exporter en CSV.
-
-## Ce qui est libre
-
-Le framework (Flask ou Streamlit), l’organisation du code et l’interface. La base SQLite est fournie avec des exemples, et vous pouvez la modifier. Python, SQLite et pytest sont imposés.
-
-## À la fin de la séance
-
-- Le but : une application qui fonctionne, avec les fonctionnalités demandées.
-- Poussez votre travail sur GitHub.
-
----
-
-# Démarrer
-
-Python 3.11 ou plus est nécessaire.
-
-## Préparer Git
-
-Une seule fois par PC :
+Depuis le dossier local du dépôt :
 
 ```bash
-git config --global user.name "Votre nom"
-git config --global user.email "votre@adresse.be"
-```
-
-GitHub n'accepte pas votre mot de passe dans le terminal. Si `git clone` refuse la connexion, installez [GitHub CLI](https://cli.github.com) et lancez `gh auth login`.
-
-## Créer votre dépôt
-
-1. Un membre du binôme ouvre <https://github.com/umons-ig/codelab-sans-agent>, clique sur **Use this template**, puis **Create a new repository**, et choisit **Private**.
-2. Dans **Settings**, puis **Collaborators**, il ajoute son partenaire. Le partenaire accepte l'invitation.
-3. Chacun récupère le dépôt sur sa machine, puis ouvre le dossier :
-
-```bash
-git clone <adresse-de-votre-dépôt>
-```
-
-## Choisir votre dossier
-
-- `code-streamlit` : le plus simple. [Premiers pas](https://docs.streamlit.io/get-started).
-- `code-flask` : plus de contrôle. [Démarrage rapide](https://flask.palletsprojects.com/en/stable/quickstart/).
-
-Gardez un dossier et supprimez l'autre. Chacun contient un `app.py` qui lit la base, l'affiche et donne un exemple de formulaire.
-
-## Installer et lancer
-
-Avec Streamlit, remplacez `code-flask` par `code-streamlit`.
-
-macOS ou Linux, depuis la racine du dépôt :
-
-```bash
-cd code-flask
+cd /Users/Apple/Desktop/codelab-sans-agent
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
-pytest
+python -m pip install -r code-streamlit/requirements.txt
 ```
 
-Windows (PowerShell), depuis la racine du dépôt :
+Pour une nouvelle copie sur une autre machine, récupérer d'abord le dépôt avec `git clone https://github.com/mghiii/codelab-sans-agent.git`, puis adapter la commande `cd` à son emplacement.
 
-```powershell
-cd code-flask
-py -m venv .venv
-Set-ExecutionPolicy -Scope Process RemoteSigned
-.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-pytest
+## Lancer l'application
+
+Depuis la racine du dépôt, avec l'environnement activé :
+
+```bash
+python -m streamlit run code-streamlit/app.py --server.address=127.0.0.1
 ```
 
-Puis lancez l'application :
+Ouvrir [l'application locale](http://127.0.0.1:8501). Pour arrêter le serveur, utiliser `Ctrl+C` dans le terminal.
 
-- Flask : `python app.py`, puis <http://127.0.0.1:5000>
-- Streamlit : `streamlit run app.py`
+Lors des lancements suivants :
 
-Sur Mac, gardez `127.0.0.1` pour Flask. Avec `localhost`, vous pouvez tomber sur AirPlay, qui utilise aussi le port 5000, et obtenir une erreur 403.
+```bash
+cd /Users/Apple/Desktop/codelab-sans-agent
+source .venv/bin/activate
+python -m streamlit run code-streamlit/app.py --server.address=127.0.0.1
+```
 
-## Comprendre le code
+## Utiliser l'application
 
-Vous travaillez dans `app.py`. `base.py` ouvre la base : vous n'avez pas besoin de le modifier.
+La barre latérale permet de sélectionner le groupe actif et de naviguer entre trois pages :
 
-- **Flask** : chaque adresse a sa fonction. `accueil` lit la base et affiche `PAGE`, qui contient le HTML. `ajouter_membre` reçoit le formulaire, écrit dans la base et revient à l'accueil. Pour une nouvelle fonctionnalité, ajoutez un formulaire dans `PAGE` et une fonction.
-- **Streamlit** : le fichier s'exécute de haut en bas, puis à nouveau à chaque clic. Pour une nouvelle fonctionnalité, ajoutez vos champs, vos boutons et vos requêtes à la suite du fichier.
+1. **Groupes** : créer un séjour avec ses dates et plusieurs membres, consulter les groupes existants et ajouter un membre au groupe actif. Un groupe peut être créé sans membre, puis complété.
+2. **Dépenses** : saisir un libellé, un montant en euros, une date, un payeur et des participants. Ouvrir une dépense pour consulter les parts individuelles, la modifier ou la supprimer. Les filtres portent sur le membre concerné et la période. Le bouton CSV exporte les dépenses affichées.
+3. **Soldes** : consulter, pour chaque membre, le total payé, les parts dues et le solde. Un montant positif est à recevoir ; un montant négatif est à rembourser.
 
-## La base
+Les montants acceptent la virgule ou le point (`10,50` ou `10.50`). Sélectionner les participants **dans l'ordre souhaité** : cet ordre est enregistré et affiché dans les détails. Le payeur peut être absent des participants.
 
-`base.sql` contient les tables et des exemples. `data.db` se crée au premier lancement. Pour repartir de zéro, ou après un changement de `base.sql`, supprimez `data.db`. [Documentation de `sqlite3`](https://docs.python.org/3/library/sqlite3.html).
+Le filtre de membre retient les dépenses qu'il a payées **ou** auxquelles il participe. Les bornes de la période sont incluses. Le CSV utilise le séparateur `;`, la virgule décimale et l'encodage UTF-8 avec BOM pour conserver les accents dans un tableur.
+
+## Règles de calcul et validations
+
+Les règles sont vérifiées dans `gestion.py`, même si les fonctions sont appelées sans l'interface :
+
+- Le nom du groupe, le nom d'un membre et le libellé d'une dépense ne peuvent pas être vides. Les noms des membres d'un groupe sont distincts, sans tenir compte des majuscules.
+- La fin du séjour ne peut pas précéder son début.
+- Le montant d'une dépense est strictement positif et ne contient aucune fraction de centime. Les montants trop grands pour un entier SQLite sont refusés.
+- Il faut au moins un participant, sans doublon. Le payeur et tous les participants appartiennent au groupe.
+- La date de la dépense est comprise entre le début et la fin du séjour, bornes incluses.
+- Chaque montant est stocké et calculé en **centimes entiers**. La saisie en euros est convertie avec `Decimal`, sans arrondi silencieux.
+- La division entière donne une part de base ; **tout le reste revient à la part due par le premier participant ajouté**. Par exemple, 5 centimes pour trois personnes donnent 3, 1 et 1 centimes.
+- **Solde = total payé − total des parts dues**. La somme des parts vaut le montant de la dépense et la somme des soldes vaut zéro.
+
+Chaque exemple ci-dessous concerne un groupe sans autre dépense, avec les participants dans l'ordre Alice, Bob, Chloé :
+
+| Dépense payée par Alice | Alice | Bob | Chloé |
+|---|---:|---:|---:|
+| 30,00 € pour les trois | +20,00 € | −10,00 € | −10,00 € |
+| 10,00 € pour les trois | +6,66 € | −3,33 € | −3,33 € |
+| 10,00 € pour Bob et Chloé | +10,00 € | −5,00 € | −5,00 € |
+
+La création, la modification et la suppression utilisent des transactions SQLite. Si une écriture échoue, les écritures de la même opération sont annulées. Les soldes sont recalculés à partir des dépenses enregistrées à chaque affichage.
+
+## Base de données
+
+`data.db`, à la racine du dépôt, est créé automatiquement. Les exemples du professeur sont conservés : le groupe **Vacances à Spa**, Alice, Bob et Chloé, ainsi que les courses de 30 €.
 
 | Table | Colonnes |
 |---|---|
 | `groupes` | `id`, `nom`, `date_debut`, `date_fin` |
 | `membres` | `id`, `groupe_id`, `nom` |
 | `depenses` | `id`, `groupe_id`, `libelle`, `montant_centimes`, `date`, `payeur_id` |
-| `participants` | `depense_id`, `membre_id` |
+| `participants` | `depense_id`, `membre_id`, **`ordre`** |
 
-Les montants sont en centimes : 3000 = 30,00 €. Les dates sont au format `2026-07-02`. `participants` relie une dépense aux membres qui la partagent.
+La seule extension du schéma est `participants.ordre`, à partir de zéro, avec un index unique sur `(depense_id, ordre)`. Les clés étrangères sont activées sur chaque connexion ; la suppression d'une dépense supprime aussi ses participations.
 
-## Travailler à deux
+**Une ancienne base est migrée automatiquement, sans effacer ses données.** L'ordre des anciennes participations est repris à partir des `rowid` existants, qui correspondent à leur ordre d'insertion dans le schéma fourni. Si cet ordre historique a déjà été perdu par une reconstruction externe de la table, il ne peut pas être reconstitué avec certitude. La migration peut être relancée sans dupliquer les exemples. Il n'est pas nécessaire de supprimer `data.db` pour cette mise à jour.
 
-Chacun travaille sur son PC. `git pull` avant de travailler, `git push` après chaque commit :
+Pour utiliser un autre fichier, définir `PARTAGE_FRAIS_DB` avant le lancement. Le dossier parent de ce fichier doit exister.
 
-```bash
-git pull
-```
+## Exécuter les tests
 
-```bash
-git add -A
-git commit -m "ajout de la fonctionnalité"
-git push
-```
-
-Si `git push` est refusé, votre partenaire a poussé entre-temps. Récupérez son travail, puis poussez à nouveau :
+Depuis la racine du dépôt, avec l'environnement activé :
 
 ```bash
-git pull --no-rebase --no-edit
-git push
+python -m pytest -q
 ```
 
-En cas de conflit, corrigez les fichiers indiqués, puis faites `git add -A`, `git commit -m "fusion"` et `git push`.
+`pytest.ini` sélectionne uniquement la version Streamlit, pour éviter les conflits de noms avec le squelette Flask. Chaque test utilise une base SQLite temporaire grâce à `tmp_path` et à `PARTAGE_FRAIS_DB`, y compris les tests de l'interface avec `AppTest`. **Les tests ne modifient pas `data.db`.**
+
+La suite vérifie les créations de groupes et de membres, les validations des dépenses, les dates limites, les deux exemples du professeur, l'ordre des participants, le payeur non participant, les petites sommes, la suppression et le recalcul, la somme des soldes, l'intégrité des transactions et la migration des anciennes données. Elle couvre aussi les modifications, les filtres, le CSV et un parcours complet dans l'interface.
+
+Dernière vérification locale : **84 tests réussis**, avec Python 3.14.6, Streamlit 1.66.1 et pytest 9.2.0. Le serveur a également été démarré et les trois pages contrôlées dans un navigateur.
+
+## Organisation du code
+
+```text
+base.sql                         Tables et exemples du professeur, ordre des participants
+pytest.ini                       Configuration des tests de la version Streamlit
+code-streamlit/
+  app.py                         Interface et navigation entre les trois pages
+  base.py                        Ouverture SQLite, initialisation et migration
+  gestion.py                     Validations, opérations, répartition, soldes, filtres et CSV
+  requirements.txt               Streamlit et pytest
+  conftest.py                     Bases temporaires et données des tests
+  test_base.py                   Initialisation, migration et intégrité SQLite
+  test_gestion.py                Fonctionnalités obligatoires et calculs
+  test_complements.py            Modification, filtres et CSV
+  test_app.py                    Navigation et parcours utilisateur avec AppTest
+```
+
+## Périmètre et Git
+
+Toutes les fonctionnalités obligatoires et les quatre compléments proposés sont implémentés. L'application est prévue pour un usage local, en euros, avec une répartition égale des dépenses. Elle ne comporte pas de comptes utilisateurs ni de synchronisation entre machines.
+
+Le fichier `data.db`, l'environnement `.venv` et les caches Python sont ignorés par Git. Examiner `git status` et `git diff` avant de créer un commit. La publication sur GitHub reste une action manuelle après vérification du projet.
